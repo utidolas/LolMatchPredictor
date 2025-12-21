@@ -11,7 +11,7 @@ def get_data():
     df_2025 = pd.read_csv(DATA_URL_2025)
 
     # combine datasets
-    full_df = pd.concat([df_2024, df_2025])
+    full_df = pd.concat([df_2024, df_2025], ignore_index=True)
 
     # filtering to focus on CBLoL/CBLol ACademy/LTA south matches
     leagues = ['CBLOL', 'LTA S', 'CBLOLA']
@@ -28,21 +28,24 @@ def feature_engineering(df):
     df['date'] = pd.to_datetime(df['date'])
     df = df.sort_values(['date', 'gameid'])
 
+    # reset index to ensure 0...N index
+    df = df.reset_index(drop=True)
+
     # player mastery calculator (win rate on specific champion e.g. Robo's win rate on Renekton before this match)
     df['player_champ_wr'] = (
         df.groupby(['playername', 'champion'])['result']
-        .apply(lambda x: x.shift().expanding().mean())
+        .transform(lambda x: x.shift().expanding().mean())
     )
 
     # player win rate in last 5 games regardless the champion
-    df['player_wr_last5'] = (
+    df['player_recent_form'] = (
         df.groupby('playername')['result']
-        .apply(lambda x: x.shift().rolling(window=5, min_periods=1).mean())
+        .transform(lambda x: x.shift().rolling(window=5, min_periods=1).mean())
     )
 
     # fill NA values to 50% in case first time playing
     df['player_champ_wr'] = df['player_champ_wr'].fillna(0.5)
-    df['player_wr_last5'] = df['player_wr_last5'].fillna(0.5) 
+    df['player_recent_form'] = df['player_recent_form'].fillna(0.5) 
 
     return df
 
@@ -82,6 +85,21 @@ def reshape_to_match_row(df):
     
     return final_dataset
 
+# Update your main block
 if __name__ == "__main__":
-    data = get_data()
-    print(f"Loaded {len(data)} rows of Brazilian data.")
+    raw_data = get_data()
+    print(f"1. Raw Data Loaded: {len(raw_data)} rows")
+    
+    # Step 3b: Feature Engineering
+    enriched_data = feature_engineering(raw_data)
+    print("2. Features Engineered (Mastery & Form calculated)")
+    
+    # Step 3c: Reshape
+    final_dataset = reshape_to_match_row(enriched_data)
+    print(f"3. Reshaped to {len(final_dataset)} unique matches")
+    
+    # Preview the "Brain" of your AI
+    print(final_dataset[['Blue_top_champion', 'Blue_top_player_champ_wr', 'blue_win_label']].head())
+    
+    # Optional: Save to check manually
+    final_dataset.to_csv("cblol_training_data.csv", index=False)
