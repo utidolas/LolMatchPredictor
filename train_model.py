@@ -23,3 +23,19 @@ global_encoder = LabelEncoder()
 # take all unique champions from all 10 columns to fit the encoder
 all_champs = pd.concat([df[col] for col in champ_cols]).unique()
 global_encoder.fit(all_champs)
+
+# apply encodinf to dataframe
+for col in champ_cols:
+
+    # handle unseen champions by mapping them to 'Unknown'
+    df[col] = df[col].apply(lambda x: x if x in global_encoder.classes_ else 'Unknown')
+    if 'Unknown' not in global_encoder.classes_:
+        pass
+
+    df[col] = global_encoder.transform(df[col])
+
+# save the encoder for later use in app.py
+joblib.dump(global_encoder, "champion_label_encoder.pkl")
+print("Champion Label Encoder saved.")
+
+# ======= MODEL TRAINING =======
