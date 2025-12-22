@@ -39,3 +39,40 @@ joblib.dump(global_encoder, "champion_label_encoder.pkl")
 print("Champion Label Encoder saved.")
 
 # ======= MODEL TRAINING =======
+
+# defining feaatures (x) and target (y) && dropping metadata columns not needed
+features_to_drop = ['gameid', 'date', 'Blue_Team', 'Red_Team', 'blue_win_label', 'patch', 'patch_blue', 'patch_red', 'teamname_red', 'teamname_blue']
+
+# select only numeric features and encoded champion columns
+valid_features = [col for col in df.columns if col not in features_to_drop]
+
+X = df[valid_features]
+y = df['blue_win_label']
+
+# train-test split: 80-20
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=False)
+
+# init the brain (XGBoost)
+model = XGBClassifier(
+    n_estimators=200,      # Number of "trees" in the forest
+    learning_rate=0.05,    # How fast it learns (lower is more careful)
+    max_depth=4,           # How complex each tree is
+    random_state=42
+)
+
+print(f"Training on {len(X_train)} matches...")
+model.fit(X_train, y_train)
+
+# ======= EVALUATION =======
+
+# predctions
+predictions = model.predict(X_test)
+accuracy = accuracy_score(y_test, predictions)
+
+print(f"\n🏆 Model Accuracy: {accuracy:.2%}")
+print("\nDetailed Report:")
+print(classification_report(y_test, predictions))
+
+# save the trained brain
+model.save_model("cblol_predictor.json")
+print("💾 Model saved to cblol_predictor.json")
