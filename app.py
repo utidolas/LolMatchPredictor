@@ -22,33 +22,47 @@ def get_data():
 
     return filtered_df
 
-def feature_engineering(df):
+# ======= Metric Calculations =======
+def add_player_metrics(df):
+
+    # sort chronologically
+    df = df.sort_values(by=['DATE', 'gameid'])
+
+    # mastery - Career WR on specific champion up to that match
+    df['player_champ_wr'] = ( df.groupby(['playername', 'champion'])['result'].transform(lambda x: x.shift().expanding().mean())).fillna(0.5)
+
+    # recent form - Career WR on last 5 matches up to that match
+    df['player_recent_form'] = (df.groupby('playername')['result'].transform(lambda x: x.shift().rolling(window=5, min_periods=1).mean())).fillna(0.5)
     
-    # sort by date
-    df['date'] = pd.to_datetime(df['date'])
-    df = df.sort_values(['date', 'gameid'])
+    return df
 
-    # reset index to ensure 0...N index
-    df = df.reset_index(drop=True)
+def add_meta_metrics(df):
 
-    # player mastery calculator (win rate on specific champion e.g. Robo's win rate on Renekton before this match)
-    df['player_champ_wr'] = (
-        df.groupby(['playername', 'champion'])['result']
-        .transform(lambda x: x.shift().expanding().mean())
-    )
+    # global champion winrate (last 50 games in league)
+    df['champ_meta_wr'] = (df.groupby('champion')['result'].transform(lambda x: x.shift().rolling(window=50, min_periods=5).mean())).fillna(0.5)
 
-    # player win rate in last 5 games regardless the champion
-    df['player_recent_form'] = (
-        df.groupby('playername')['result']
-        .transform(lambda x: x.shift().rolling(window=5, min_periods=1).mean())
-    )
-
-    # fill NA values to 50% in case first time playing
-    df['player_champ_wr'] = df['player_champ_wr'].fillna(0.5)
-    df['player_recent_form'] = df['player_recent_form'].fillna(0.5) 
+    # add frequency of pick to weigh against rare champions
 
     return df
 
+def add_team_metrics(df):
+    '''
+    Calculate team strength based on the sum of players WR
+    Team Strength = Average of (Top WR + Jungle WR + Mid WR + ADC WR + Support WR)
+    '''
+
+    # general WR for every player
+    df['player_general_wr'] = (df.groupby('playername')['result'].transform(lambda x: x.shift().expanding().mean())).fillna(0.5)
+
+    # assign WR to the Team of the match
+    df['team_avg_player_wr'] = (df.groupby(['gameid', 'teamname'])['player_general_wr'].transform('mean'))
+
+    return df
+
+# ======= Pipeline =======
+def feature_engineering_pipeline(df):
+    return df
+# ======= Reshaping Data =======
 def reshape_to_match_row(df):
 
     # keep only player rows
