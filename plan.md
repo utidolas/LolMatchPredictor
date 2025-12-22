@@ -10,3 +10,6 @@
 * Player mastery & player streak
 * Meta (champion strength)
 * Team Strength
+
+# TO DO
+- otimize training model 

@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from xgboost import XGBClassifier
 
 # load processed data
-df = pd.read_csv("cblol_training_data.csv")
+df = pd.read_csv("cblol_training_dataV2.csv")
 
 # ======= ENCONDING ======= 
 
