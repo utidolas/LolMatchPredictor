@@ -15,12 +15,16 @@
             <p class="lead">* arraste os campeões para as rotas para analisar *</p>
         </header>
 
+        <!-- outer container -->
         <div class="row align-items-center">
             
+            <!-- BLUE SIDE -->
             <div class="col-md-3">
                 <div class="team-container blue-border p-3">
                     <h3 class="text-center text-info mb-4">BLUE SIDE</h3>
                     <div class="draft-slots" id="blue-slots">
+
+                        <!-- cards -->
                         <div class="slot" data-role="top" ondrop="drop(event)" ondragover="allowDrop(event)"><span>TOP</span></div>
                         <div class="slot" data-role="jungle" ondrop="drop(event)" ondragover="allowDrop(event)"><span>JNG</span></div>
                         <div class="slot" data-role="mid" ondrop="drop(event)" ondragover="allowDrop(event)"><span>MID</span></div>
@@ -30,41 +34,33 @@
                 </div>
             </div>
 
+            <!-- champ carousel -->
             <div class="col-md-6 text-center">
+
                 <div id="championCarousel" class="carousel slide" data-bs-ride="false">
                     <div class="carousel-inner p-4" id="carousel-content">
-                        <div class="carousel-item active">
-                            <div class="d-flex justify-content-center gap-3">
-                                <div class="champ-card" draggable="true" ondragstart="drag(event)" id="Aatrox">
-                                    <div class="champ-icon"></div>
-                                    <span>Aatrox</span>
-                                </div>
-                                <div class="champ-card" draggable="true" ondragstart="drag(event)" id="Ahri">
-                                    <div class="champ-icon"></div>
-                                    <span>Ahri</span>
-                                </div>
-                                <div class="champ-card" draggable="true" ondragstart="drag(event)" id="Azir">
-                                    <div class="champ-icon"></div>
-                                    <span>Azir</span>
-                                </div>
-                            </div>
+                        <div class="text-center py-5" id="loader">
+                            <div class="spinner-border text-warning" role="status"></div>
                         </div>
                     </div>
                     <button class="carousel-control-prev" type="button" data-bs-target="#championCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon"></span>
+                        <span class="carousel-control-prev-icon bg-dark rounded-circle"></span>
                     </button>
                     <button class="carousel-control-next" type="button" data-bs-target="#championCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon"></span>
+                        <span class="carousel-control-next-icon bg-dark rounded-circle"></span>
                     </button>
                 </div>
                 
                 <button class="btn btn-warning btn-lg mt-5 fw-bold px-5" id="predict-btn">ANALISAR DRAFT</button>
             </div>
-
+            
+            <!-- RED SIDE -->
             <div class="col-md-3">
                 <div class="team-container red-border p-3">
                     <h3 class="text-center text-danger mb-4">RED SIDE</h3>
                     <div class="draft-slots" id="red-slots">
+
+                        <!-- cards -->
                         <div class="slot" data-role="top" ondrop="drop(event)" ondragover="allowDrop(event)"><span>TOP</span></div>
                         <div class="slot" data-role="jungle" ondrop="drop(event)" ondragover="allowDrop(event)"><span>JNG</span></div>
                         <div class="slot" data-role="mid" ondrop="drop(event)" ondragover="allowDrop(event)"><span>MID</span></div>
