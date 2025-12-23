@@ -1,0 +1,62 @@
+:root {
+    --gold: #c8aa6e;
+    --dark-blue: #091420;
+    --blue-highlight: #00cfff;
+    --red-highlight: #ff4655;
+}
+
+body {
+    background-color: #010a13 !important;
+}
+
+.gold-text { color: var(--gold); }
+
+.team-container {
+    background: rgba(255, 255, 255, 0.05);
+    min-height: 500px;
+    border-radius: 8px;
+}
+
+.blue-border { border: 2px solid var(--blue-highlight); }
+.red-border { border: 2px solid var(--red-highlight); }
+
+/* empy slots for champs */
+.slot {
+    width: 100%;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px dashed #5b5a56;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5b5a56;
+    position: relative;
+    transition: 0.3s;
+}
+
+.slot:hover { border-color: var(--gold); }
+
+/* champ card on carousel*/
+.champ-card {
+    cursor: grab;
+    transition: 0.2s;
+    text-align: center;
+}
+
+.champ-icon {
+    width: 60px;
+    height: 60px;
+    background: #1e2328;
+    border: 2px solid var(--gold);
+    margin: 0 auto 5px;
+}
+
+.champ-card:hover { transform: scale(1.1); color: var(--gold); }
+
+/* style for when champ card is dropped from carousel */
+.slot.filled {
+    background: var(--dark-blue);
+    border: 1px solid var(--gold);
+    color: white;
+}
