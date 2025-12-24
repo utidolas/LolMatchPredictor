@@ -37,26 +37,100 @@ body {
 
 .slot:hover { border-color: var(--gold); }
 
-/* champ card on carousel*/
-.champ-card {
-    cursor: grab;
-    transition: 0.2s;
-    text-align: center;
-}
-
-.champ-icon {
-    width: 60px;
-    height: 60px;
-    background: #1e2328;
+/* Container da Seleção */
+.champion-select-container {
+    background: rgba(0, 0, 0, 0.6);
     border: 2px solid var(--gold);
-    margin: 0 auto 5px;
+    padding: 15px;
+    height: 500px; /* Altura fixa para forçar o scroll */
+    display: flex;
+    flex-direction: column;
 }
 
-.champ-card:hover { transform: scale(1.1); color: var(--gold); }
+/* A Grade 5xN */
+.champion-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 colunas fixas */
+    gap: 10px;
+    overflow-y: scroll; /* Scroll vertical */
+    padding-right: 10px;
+}
+
+/* Customização do Scrollbar (estilo LoL) */
+.champion-grid::-webkit-scrollbar {
+    width: 6px;
+}
+.champion-grid::-webkit-scrollbar-thumb {
+    background: var(--gold);
+    border-radius: 10px;
+}
+
+/* Ícone do Campeão na Grade */
+.champ-item {
+    aspect-ratio: 1/1;
+    cursor: grab;
+    position: relative;
+    transition: 0.2s;
+    border: 1px solid #3c3c41;
+}
+
+.champ-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.champ-item:hover {
+    border-color: var(--gold);
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+.champ-item .name-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    font-size: 0.65rem;
+    background: rgba(0,0,0,0.7);
+    text-align: center;
+    pointer-events: none;
+}
+
+.gold-button {
+    box-shadow: 0 0 15px rgba(200, 170, 110, 0.3);
+    border: 1px solid var(--gold);
+}
 
 /* style for when champ card is dropped from carousel */
 .slot.filled {
     background: var(--dark-blue);
     border: 1px solid var(--gold);
     color: white;
+}
+
+/* Ajuste na Barra de Pesquisa */
+#champ-search {
+    background-color: #1e2328 !important;
+    color: #c8aa6e !important; /* Cor dourada para as letras aparecerem */
+    border: 1px solid var(--gold);
+}
+
+#champ-search::placeholder {
+    color: #5b5a56;
+}
+
+/* Ajuste na Grade para remover scroll horizontal */
+.champion-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    overflow-y: auto; /* Scroll apenas vertical */
+    overflow-x: hidden; /* DESATIVA o scroll horizontal */
+    padding-right: 5px;
+    height: 100%;
+}
+
+/* Garantir que as imagens dentro dos slots não quebrem o drop */
+.slot * {
+    pointer-events: none;
 }

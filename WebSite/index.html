@@ -35,24 +35,20 @@
             </div>
 
             <!-- champ carousel -->
-            <div class="col-md-6 text-center">
-
-                <div id="championCarousel" class="carousel slide" data-bs-ride="false">
-                    <div class="carousel-inner p-4" id="carousel-content">
-                        <div class="text-center py-5" id="loader">
-                            <div class="spinner-border text-warning" role="status"></div>
-                        </div>
-                    </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#championCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon bg-dark rounded-circle"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#championCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon bg-dark rounded-circle"></span>
-                    </button>
+        <div class="col-md-6">
+            <div class="champion-select-container">
+                <div class="search-bar mb-3">
+                    <input type="text" id="champ-search" class="form-control bg-dark text-gold" placeholder="Pesquisar Campeão...">
                 </div>
                 
-                <button class="btn btn-warning btn-lg mt-5 fw-bold px-5" id="predict-btn">ANALISAR DRAFT</button>
+                <div class="champion-grid" id="champion-grid">
+                    </div>
             </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-warning btn-lg fw-bold px-5 gold-button" id="predict-btn">ANALISAR CONFRONTO</button>
+            </div>
+        </div>
             
             <!-- RED SIDE -->
             <div class="col-md-3">
