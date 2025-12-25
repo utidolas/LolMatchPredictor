@@ -15,16 +15,18 @@
             <p class="lead">* arraste os campeões para as rotas para analisar *</p>
         </header>
 
-        <!-- outer container -->
         <div class="row align-items-center">
             
-            <!-- BLUE SIDE -->
             <div class="col-md-3">
+                <div class="mb-3">
+                    <select id="blue-team-select" class="form-select team-select blue-team-select text-center fw-bold">
+                        <option value="" selected>Selecione Time Azul</option>
+                    </select>
+                </div>
+
                 <div class="team-container blue-border p-3">
                     <h3 class="text-center text-info mb-4">BLUE SIDE</h3>
                     <div class="draft-slots" id="blue-slots">
-
-                        <!-- cards -->
                         <div class="slot" data-role="top" ondrop="drop(event)" ondragover="allowDrop(event)"><span>TOP</span></div>
                         <div class="slot" data-role="jungle" ondrop="drop(event)" ondragover="allowDrop(event)"><span>JNG</span></div>
                         <div class="slot" data-role="mid" ondrop="drop(event)" ondragover="allowDrop(event)"><span>MID</span></div>
@@ -34,29 +36,31 @@
                 </div>
             </div>
 
-            <!-- champ carousel -->
-        <div class="col-md-6">
-            <div class="champion-select-container">
-                <div class="search-bar mb-3">
-                    <input type="text" id="champ-search" class="form-control bg-dark text-gold" placeholder="Pesquisar Campeão...">
+            <div class="col-md-6">
+                <div class="champion-select-container">
+                    <div class="search-bar mb-3">
+                        <input type="text" id="champ-search" class="form-control bg-dark text-gold" placeholder="Pesquisar Campeão...">
+                    </div>
+                    
+                    <div class="champion-grid" id="champion-grid">
+                    </div>
                 </div>
                 
-                <div class="champion-grid" id="champion-grid">
-                    </div>
+                <div class="text-center mt-4">
+                    <button class="btn btn-warning btn-lg fw-bold px-5 gold-button" id="predict-btn">ANALISAR CONFRONTO</button>
+                </div>
             </div>
             
-            <div class="text-center mt-4">
-                <button class="btn btn-warning btn-lg fw-bold px-5 gold-button" id="predict-btn">ANALISAR CONFRONTO</button>
-            </div>
-        </div>
-            
-            <!-- RED SIDE -->
             <div class="col-md-3">
+                <div class="mb-3">
+                    <select id="red-team-select" class="form-select team-select red-team-select text-center fw-bold">
+                        <option value="" selected>Selecione Time Vermelho</option>
+                    </select>
+                </div>
+
                 <div class="team-container red-border p-3">
                     <h3 class="text-center text-danger mb-4">RED SIDE</h3>
                     <div class="draft-slots" id="red-slots">
-
-                        <!-- cards -->
                         <div class="slot" data-role="top" ondrop="drop(event)" ondragover="allowDrop(event)"><span>TOP</span></div>
                         <div class="slot" data-role="jungle" ondrop="drop(event)" ondragover="allowDrop(event)"><span>JNG</span></div>
                         <div class="slot" data-role="mid" ondrop="drop(event)" ondragover="allowDrop(event)"><span>MID</span></div>
@@ -66,6 +70,43 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <div class="container mt-5 mb-5" id="analysis-section" style="display: none;">
+        <div class="card bg-dark border-gold">
+            <div class="card-header text-center border-gold">
+                <h3 class="gold-text">MATCH ANALYSIS</h3>
+            </div>
+            <div class="card-body">
+                
+                <div class="row text-center mb-4">
+                    <div class="col">
+                        <h1 class="display-3 fw-bold text-white" id="win-percent">--%</h1>
+                        <p class="lead text-muted">Blue Side Win Probability</p>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover text-center align-middle">
+                        <thead>
+                            <tr class="text-gold">
+                                <th>ROLE</th>
+                                <th class="text-info">BLUE PLAYER</th>
+                                <th>MASTERY</th>
+                                <th>FORM</th>
+                                <th class="text-muted">VS</th>
+                                <th class="text-danger">RED PLAYER</th>
+                                <th>MASTERY</th>
+                                <th>FORM</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stats-table-body">
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
         </div>
     </div>
 

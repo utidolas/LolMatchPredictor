@@ -2,6 +2,18 @@ const DDRAGON_VERSION = "14.3.1";
 const CHAMP_DATA_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/data/pt_BR/champion.json`;
 const CHAMP_IMG_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/`;
 
+// Official 2025 LTA South Teams
+const cblolTeams = [
+    "LOUD",
+    "paiN Gaming",
+    "FURIA",
+    "RED Canids",
+    "Vivo Keyd Stars",
+    "Fluxo",
+    "Leviatán",
+    "Isurus"
+];
+
 let allChampions = [];
 
 async function loadChampions() {
@@ -32,6 +44,25 @@ function renderGrid(champs) {
         `;
         
         grid.appendChild(item);
+    });
+}
+
+function populateTeamSelects() {
+    const blueSelect = document.getElementById('blue-team-select');
+    const redSelect = document.getElementById('red-team-select');
+
+    cblolTeams.forEach(team => {
+        // Create option for Blue
+        const optBlue = document.createElement('option');
+        optBlue.value = team;
+        optBlue.textContent = team;
+        blueSelect.appendChild(optBlue);
+
+        // Create option for Red
+        const optRed = document.createElement('option');
+        optRed.value = team;
+        optRed.textContent = team;
+        redSelect.appendChild(optRed);
     });
 }
 
@@ -72,4 +103,7 @@ function drop(ev) {
         targetSlot.setAttribute('data-champion', champId);
     }
 }
+
+// Init
 loadChampions();
+populateTeamSelects();

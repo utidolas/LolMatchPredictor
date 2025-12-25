@@ -3,6 +3,7 @@
     --dark-blue: #091420;
     --blue-highlight: #00cfff;
     --red-highlight: #ff4655;
+    --dark-grey: #1e2328; /* dropdown bg */
 }
 
 body {
@@ -19,6 +20,31 @@ body {
 
 .blue-border { border: 2px solid var(--blue-highlight); }
 .red-border { border: 2px solid var(--red-highlight); }
+
+/* team select dropdown */
+.team-select {
+    background-color: var(--dark-grey);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.team-select:focus {
+    background-color: var(--dark-grey);
+    color: white;
+    box-shadow: 0 0 10px var(--gold);
+    border-color: var(--gold);
+}
+
+.blue-team-select {
+    border-color: var(--blue-highlight);
+    color: var(--blue-highlight);
+}
+
+.red-team-select {
+    border-color: var(--red-highlight);
+    color: var(--red-highlight);
+}
 
 /* empy slots for champs */
 .slot {
@@ -37,26 +63,30 @@ body {
 
 .slot:hover { border-color: var(--gold); }
 
-/* Container da Seleção */
+/* selection container */
 .champion-select-container {
     background: rgba(0, 0, 0, 0.6);
     border: 2px solid var(--gold);
     padding: 15px;
-    height: 500px; /* Altura fixa para forçar o scroll */
+    height: 550px; /* Altura fixa para consistência */
     display: flex;
     flex-direction: column;
+    overflow: hidden; 
 }
 
-/* A Grade 5xN */
+/* 5xN grid */
 .champion-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 colunas fixas */
+    grid-template-columns: repeat(5, 1fr); 
+    grid-auto-rows: min-content; 
     gap: 10px;
-    overflow-y: scroll; /* Scroll vertical */
+    overflow-y: auto;
+    overflow-x: hidden; 
     padding-right: 10px;
+    flex-grow: 1; 
 }
 
-/* Customização do Scrollbar (estilo LoL) */
+/* scroll bar like Lol */
 .champion-grid::-webkit-scrollbar {
     width: 6px;
 }
@@ -65,19 +95,24 @@ body {
     border-radius: 10px;
 }
 
-/* Ícone do Campeão na Grade */
+/* champ icon in grid */
 .champ-item {
-    aspect-ratio: 1/1;
+    width: 100%;
+    max-width: 80px; 
+    aspect-ratio: 1 / 1;
     cursor: grab;
     position: relative;
-    transition: 0.2s;
+    transition: transform 0.2s, border-color 0.2s;
     border: 1px solid #3c3c41;
+    background: #010a13;
+    justify-self: center; 
 }
 
 .champ-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block; 
 }
 
 .champ-item:hover {
@@ -108,10 +143,10 @@ body {
     color: white;
 }
 
-/* Ajuste na Barra de Pesquisa */
+/* search bar adjs */
 #champ-search {
     background-color: #1e2328 !important;
-    color: #c8aa6e !important; /* Cor dourada para as letras aparecerem */
+    color: #c8aa6e !important; 
     border: 1px solid var(--gold);
 }
 
@@ -119,18 +154,7 @@ body {
     color: #5b5a56;
 }
 
-/* Ajuste na Grade para remover scroll horizontal */
-.champion-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    overflow-y: auto; /* Scroll apenas vertical */
-    overflow-x: hidden; /* DESATIVA o scroll horizontal */
-    padding-right: 5px;
-    height: 100%;
-}
-
-/* Garantir que as imagens dentro dos slots não quebrem o drop */
+/* ensure img in carousel dont break on drop */
 .slot * {
     pointer-events: none;
 }

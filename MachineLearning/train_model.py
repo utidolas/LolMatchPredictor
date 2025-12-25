@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score, classification_report, log_loss
 
 # 1. Load Data
 print("📂 Loading data...")
-df = pd.read_csv("cblol_v3_training.csv")
+df = pd.read_csv("cblol_training_dataV2.csv")
 
 # 2. Robust Champion Encoding
 champ_cols = [col for col in df.columns if 'champion' in col]

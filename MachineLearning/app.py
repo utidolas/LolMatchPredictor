@@ -111,12 +111,12 @@ def reshape_to_match_row(df):
     
     return final
 
-# Update your main block
+# update main bloc
 if __name__ == "__main__":
-    # Assuming get_data() is already defined in your file
+
     raw = get_data() 
     
-    # Run Pipeline
+
     enriched = feature_engineering_pipeline(raw)
     final_data = reshape_to_match_row(enriched)
     
