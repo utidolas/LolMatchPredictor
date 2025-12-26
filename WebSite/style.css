@@ -68,7 +68,7 @@ body {
     background: rgba(0, 0, 0, 0.6);
     border: 2px solid var(--gold);
     padding: 15px;
-    height: 550px; /* Altura fixa para consistência */
+    height: 550px; /* fixed height for consistency */
     display: flex;
     flex-direction: column;
     overflow: hidden; 

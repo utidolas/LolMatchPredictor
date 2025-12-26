@@ -1,21 +1,17 @@
 const DDRAGON_VERSION = "14.3.1";
 const CHAMP_DATA_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/data/pt_BR/champion.json`;
 const CHAMP_IMG_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/`;
+const API_URL = "http://127.0.0.1:8000/predict";
 
-// Official 2025 LTA South Teams
+// 2025 LTA South teams ## UPDATE THIS LATER ##
 const cblolTeams = [
-    "LOUD",
-    "paiN Gaming",
-    "FURIA",
-    "RED Canids",
-    "Vivo Keyd Stars",
-    "Fluxo",
-    "Leviatán",
-    "Isurus"
+    "LOUD", "paiN Gaming", "FURIA", "RED Canids", 
+    "Vivo Keyd Stars", "Fluxo", "Leviatán", "Isurus"
 ];
 
 let allChampions = [];
 
+// ======= champion data =======
 async function loadChampions() {
     try {
         const response = await fetch(CHAMP_DATA_URL);
@@ -27,6 +23,17 @@ async function loadChampions() {
     }
 }
 
+function populateTeamSelects() {
+    const blueSelect = document.getElementById('blue-team-select');
+    const redSelect = document.getElementById('red-team-select');
+
+    cblolTeams.forEach(team => {
+        blueSelect.add(new Option(team, team));
+        redSelect.add(new Option(team, team));
+    });
+}
+
+// ======= UI Logic =======
 function renderGrid(champs) {
     const grid = document.getElementById('champion-grid');
     grid.innerHTML = '';
@@ -34,7 +41,7 @@ function renderGrid(champs) {
     champs.forEach(champ => {
         const item = document.createElement('div');
         item.className = 'champ-item';
-        item.id = champ.id;
+        item.id = champ.id; // ID to send to backend - e.g. "Aatrox"
         item.draggable = true;
         item.ondragstart = drag;
         
@@ -42,42 +49,19 @@ function renderGrid(champs) {
             <img src="${CHAMP_IMG_URL}${champ.image.full}" alt="${champ.name}">
             <div class="name-overlay text-white">${champ.name}</div>
         `;
-        
         grid.appendChild(item);
     });
 }
 
-function populateTeamSelects() {
-    const blueSelect = document.getElementById('blue-team-select');
-    const redSelect = document.getElementById('red-team-select');
-
-    cblolTeams.forEach(team => {
-        // Create option for Blue
-        const optBlue = document.createElement('option');
-        optBlue.value = team;
-        optBlue.textContent = team;
-        blueSelect.appendChild(optBlue);
-
-        // Create option for Red
-        const optRed = document.createElement('option');
-        optRed.value = team;
-        optRed.textContent = team;
-        redSelect.appendChild(optRed);
-    });
-}
-
-// Filtro de Busca
 document.getElementById('champ-search').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     const filtered = allChampions.filter(c => c.name.toLowerCase().includes(term));
     renderGrid(filtered);
 });
 
-
+// ======= drag and drop logic =======
 function drag(ev) {
-    // Garante que estamos pegando o ID do elemento .champ-item
-    const champId = ev.target.closest('.champ-item').id;
-    ev.dataTransfer.setData("text", champId);
+    ev.dataTransfer.setData("text", ev.target.closest('.champ-item').id);
 }
 
 function allowDrop(ev) {
@@ -90,20 +74,95 @@ function drop(ev) {
     const targetSlot = ev.target.closest('.slot');
     
     if (targetSlot) {
-        // Remove a classe 'filled' se já houver para resetar visual
         targetSlot.classList.remove('filled');
-        
-        // Insere a imagem e o nome
         targetSlot.innerHTML = `
             <img src="${CHAMP_IMG_URL}${champId}.png" class="slot-img" style="width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; opacity:0.6;">
             <span class="slot-label" style="position:relative; z-index:2; font-weight:bold; text-shadow: 2px 2px 4px black;">${champId}</span>
         `;
-        
         targetSlot.classList.add('filled');
         targetSlot.setAttribute('data-champion', champId);
     }
 }
 
-// Init
-loadChampions();
+// ======= prediction logic =======
+document.getElementById('predict-btn').addEventListener('click', async () => {
+    
+    // collect data
+    const blueTeam = document.getElementById('blue-team-select').value;
+    const redTeam = document.getElementById('red-team-select').value;
+    
+    if(!blueTeam || !redTeam) {
+        alert("Por favor, selecione os dois times.");
+        return;
+    }
+
+    const getChamps = (sideId) => {
+        const slots = document.getElementById(sideId).querySelectorAll('.slot');
+        return Array.from(slots).map(slot => slot.getAttribute('data-champion'));
+    };
+
+    const blueChamps = getChamps('blue-slots');
+    const redChamps = getChamps('red-slots');
+
+    if (blueChamps.includes(null) || redChamps.includes(null)) {
+        alert("Por favor, preencha todos os 10 campeões.");
+        return;
+    }
+
+    // call API
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                blue_team: blueTeam,
+                red_team: redTeam,
+                blue_champs: blueChamps,
+                red_champs: redChamps
+            })
+        });
+
+        if (!response.ok) throw new Error("Erro na API");
+
+        const result = await response.json();
+        
+        // update UI with results
+        document.getElementById('analysis-section').style.display = 'block';
+        document.getElementById('win-percent').innerText = `${result.blue_win_percent}%`;
+        
+        // populate stats table
+        const tbody = document.getElementById('stats-table-body');
+        tbody.innerHTML = '';
+
+        // merge arrays to build rows - top vs top, etc...
+        for(let i=0; i<5; i++) {
+            const blue = result.blue_stats[i];
+            const red = result.red_stats[i];
+            
+            const row = `
+                <tr>
+                    <td class="fw-bold gold-text">${blue.role}</td>
+                    <td class="text-info fw-bold">${blue.player}</td>
+                    <td><span class="badge bg-secondary">${blue.mastery}</span></td>
+                    <td><small>${blue.form}</small></td>
+                    <td class="text-muted">vs</td>
+                    <td class="text-danger fw-bold">${red.player}</td>
+                    <td><span class="badge bg-secondary">${red.mastery}</span></td>
+                    <td><small>${red.form}</small></td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        }
+
+        // scroll to ressult
+        document.getElementById('analysis-section').scrollIntoView({ behavior: 'smooth' });
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao conectar com o servidor de análise.");
+    }
+});
+
+// srtart
+loadChampions(); 
 populateTeamSelects();
