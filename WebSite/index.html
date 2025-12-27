@@ -6,6 +6,7 @@
     <title>CBLOL Draft Predictor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-dark text-light">
 
@@ -16,16 +17,14 @@
         </header>
 
         <div class="row align-items-center">
-            
             <div class="col-md-3">
                 <div class="mb-3">
                     <select id="blue-team-select" class="form-select team-select blue-team-select text-center fw-bold">
                         <option value="" selected>Selecione Time Azul</option>
                     </select>
                 </div>
-
                 <div class="team-container blue-border p-3">
-                    <h3 class="text-center text-info mb-4">BLUE SIDE</h3>
+                    <h3 class="text-center text-info mb-4">LADO AZUL</h3>
                     <div class="draft-slots" id="blue-slots">
                         <div class="slot" data-role="top" ondrop="drop(event)" ondragover="allowDrop(event)"><span>TOP</span></div>
                         <div class="slot" data-role="jungle" ondrop="drop(event)" ondragover="allowDrop(event)"><span>JNG</span></div>
@@ -41,11 +40,8 @@
                     <div class="search-bar mb-3">
                         <input type="text" id="champ-search" class="form-control bg-dark text-gold" placeholder="Pesquisar Campeão...">
                     </div>
-                    
-                    <div class="champion-grid" id="champion-grid">
-                    </div>
+                    <div class="champion-grid" id="champion-grid"></div>
                 </div>
-                
                 <div class="text-center mt-4">
                     <button class="btn btn-warning btn-lg fw-bold px-5 gold-button" id="predict-btn">ANALISAR CONFRONTO</button>
                 </div>
@@ -57,9 +53,8 @@
                         <option value="" selected>Selecione Time Vermelho</option>
                     </select>
                 </div>
-
                 <div class="team-container red-border p-3">
-                    <h3 class="text-center text-danger mb-4">RED SIDE</h3>
+                    <h3 class="text-center text-danger mb-4">LADO VERMELHO</h3>
                     <div class="draft-slots" id="red-slots">
                         <div class="slot" data-role="top" ondrop="drop(event)" ondragover="allowDrop(event)"><span>TOP</span></div>
                         <div class="slot" data-role="jungle" ondrop="drop(event)" ondragover="allowDrop(event)"><span>JNG</span></div>
@@ -69,21 +64,28 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
     <div class="container mt-5 mb-5" id="analysis-section" style="display: none;">
-        <div class="card bg-dark border-gold">
+        
+        <div class="card bg-dark border-gold mb-4">
             <div class="card-header text-center border-gold">
-                <h3 class="gold-text">MATCH ANALYSIS</h3>
+                <h3 class="gold-text">ANÁLISE DA PARTIDA</h3>
             </div>
             <div class="card-body">
                 
-                <div class="row text-center mb-4">
-                    <div class="col">
-                        <h1 class="display-3 fw-bold text-white" id="win-percent">--%</h1>
-                        <p class="lead text-muted">Blue Side Win Probability</p>
+                <div class="row text-center mb-4 align-items-center">
+                    <div class="col-5 text-end">
+                        <h2 class="text-info fw-bold mb-0">LADO AZUL</h2>
+                        <h1 class="display-4 fw-bold text-white" id="blue-win-percent">--%</h1>
+                    </div>
+                    <div class="col-2">
+                        <span class="text-muted display-6">X</span>
+                    </div>
+                    <div class="col-5 text-start">
+                        <h2 class="text-danger fw-bold mb-0">LADO VERMELHO</h2>
+                        <h1 class="display-4 fw-bold text-white" id="red-win-percent">--%</h1>
                     </div>
                 </div>
 
@@ -91,23 +93,89 @@
                     <table class="table table-dark table-hover text-center align-middle">
                         <thead>
                             <tr class="text-gold">
-                                <th>ROLE</th>
-                                <th class="text-info">BLUE PLAYER</th>
-                                <th>MASTERY</th>
-                                <th>FORM</th>
+                                <th>ROTA</th>
+                                <th class="text-info">JOGADOR AZUL</th>
+                                <th>MAESTRIA</th>
+                                <th>SEQUÊNCIA</th>
                                 <th class="text-muted">VS</th>
-                                <th class="text-danger">RED PLAYER</th>
-                                <th>MASTERY</th>
-                                <th>FORM</th>
+                                <th class="text-danger">JOGADOR VERM.</th>
+                                <th>MAESTRIA</th>
+                                <th>SEQUÊNCIA</th>
                             </tr>
                         </thead>
-                        <tbody id="stats-table-body">
+                        <tbody id="stats-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-dark border-gold">
+            <div class="card-header text-center border-gold">
+                <h4 class="gold-text">COMPARATIVO DIRETO</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped text-center align-middle">
+                        <thead>
+                            <tr class="text-white">
+                                <th>ROTA</th>
+                                <th>VANTAGEM MAESTRIA</th>
+                                <th>VANTAGEM FASE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparison-table-body">
                         </tbody>
                     </table>
                 </div>
-
             </div>
         </div>
+
+        <div class="card bg-dark border-gold mt-4">
+            <div class="card-header text-center border-gold">
+                <h5 class="gold-text mb-0"><i class="fa-solid fa-circle-info me-2"></i>ENTENDA OS DADOS</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-sm mb-0 align-middle">
+                        <tbody class="text-white-50">
+                            <tr>
+                                <td class="text-white fw-bold ps-4 py-3" style="width: 25%;">MAESTRIA</td>
+                                <td class="py-3 pe-4">
+                                    A taxa de vitória histórica deste jogador profissional especificamente com o campeão selecionado, considerando toda a sua carreira registrada.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-white fw-bold ps-4 py-3">SEQUÊNCIA (STREAK)</td>
+                                <td class="py-3 pe-4">
+                                    O momento atual do jogador. <span style="color: #ff6b6b;"><i class="fa-solid fa-fire"></i></span> indica uma sequência de vitórias consecutivas recentes, enquanto <span style="color: #4dabf7;"><i class="fa-regular fa-snowflake"></i></span> indica uma sequência de derrotas ou baixo desempenho recente.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-white fw-bold ps-4 py-3">VANTAGEM MAESTRIA</td>
+                                <td class="py-3 pe-4">
+                                    A diferença percentual de experiência entre os dois jogadores no confronto direto. Mostra quem tem o histórico mais vitorioso com seu respectivo campeão.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-white fw-bold ps-4 py-3">VANTAGEM FASE</td>
+                                <td class="py-3 pe-4">
+                                    Compara o momento atual dos dois jogadores. Quem está em melhor forma física e mental nos últimos 5 jogos tem a vantagem nesta métrica.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-white fw-bold ps-4 py-3 border-0">PROBABILIDADE</td>
+                                <td class="py-3 pe-4 border-0">
+                                    A chance calculada de vitória baseada em milhares de partidas profissionais anteriores, considerando a força dos campeões no meta atual e o histórico dos jogadores.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

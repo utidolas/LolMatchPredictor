@@ -1,9 +1,10 @@
+// DRAGON DATA API CONSTANTS - CHANGE VERSION WHEN NEEDED
 const DDRAGON_VERSION = "14.3.1";
 const CHAMP_DATA_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/data/pt_BR/champion.json`;
 const CHAMP_IMG_URL = `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/`;
 const API_URL = "http://127.0.0.1:8000/predict";
 
-// 2025 LTA South teams ## UPDATE THIS LATER ##
+// CBLol Teams CHANGE THIS LATER IF NEEDED
 const cblolTeams = [
     "LOUD", "paiN Gaming", "FURIA", "RED Canids", 
     "Vivo Keyd Stars", "Fluxo", "Leviatán", "Isurus"
@@ -11,7 +12,6 @@ const cblolTeams = [
 
 let allChampions = [];
 
-// ======= champion data =======
 async function loadChampions() {
     try {
         const response = await fetch(CHAMP_DATA_URL);
@@ -33,7 +33,6 @@ function populateTeamSelects() {
     });
 }
 
-// ======= UI Logic =======
 function renderGrid(champs) {
     const grid = document.getElementById('champion-grid');
     grid.innerHTML = '';
@@ -41,7 +40,7 @@ function renderGrid(champs) {
     champs.forEach(champ => {
         const item = document.createElement('div');
         item.className = 'champ-item';
-        item.id = champ.id; // ID to send to backend - e.g. "Aatrox"
+        item.id = champ.id; 
         item.draggable = true;
         item.ondragstart = drag;
         
@@ -59,7 +58,6 @@ document.getElementById('champ-search').addEventListener('input', (e) => {
     renderGrid(filtered);
 });
 
-// ======= drag and drop logic =======
 function drag(ev) {
     ev.dataTransfer.setData("text", ev.target.closest('.champ-item').id);
 }
@@ -84,10 +82,17 @@ function drop(ev) {
     }
 }
 
-// ======= prediction logic =======
+// helper to generate streak icon in HTML
+function getStreakHtml(streak) {
+    if (streak > 0) {
+        return `<span class="fw-bold" style="color: #ff6b6b;"><i class="fa-solid fa-fire"></i> ${streak}</span>`;
+    } else {
+        return `<span class="fw-bold" style="color: #4dabf7;"><i class="fa-regular fa-snowflake"></i> ${Math.abs(streak)}</span>`;
+    }
+}
+
 document.getElementById('predict-btn').addEventListener('click', async () => {
     
-    // collect data
     const blueTeam = document.getElementById('blue-team-select').value;
     const redTeam = document.getElementById('red-team-select').value;
     
@@ -109,7 +114,6 @@ document.getElementById('predict-btn').addEventListener('click', async () => {
         return;
     }
 
-    // call API
     try {
         const response = await fetch(API_URL, {
             method: "POST",
@@ -126,15 +130,16 @@ document.getElementById('predict-btn').addEventListener('click', async () => {
 
         const result = await response.json();
         
-        // update UI with results
         document.getElementById('analysis-section').style.display = 'block';
-        document.getElementById('win-percent').innerText = `${result.blue_win_percent}%`;
         
-        // populate stats table
+        // fill blue/red win percentages
+        document.getElementById('blue-win-percent').innerText = `${result.blue_win_percent}%`;
+        document.getElementById('red-win-percent').innerText = `${result.red_win_percent}%`;
+        
+        // fillm ain status table
         const tbody = document.getElementById('stats-table-body');
         tbody.innerHTML = '';
 
-        // merge arrays to build rows - top vs top, etc...
         for(let i=0; i<5; i++) {
             const blue = result.blue_stats[i];
             const red = result.red_stats[i];
@@ -144,17 +149,39 @@ document.getElementById('predict-btn').addEventListener('click', async () => {
                     <td class="fw-bold gold-text">${blue.role}</td>
                     <td class="text-info fw-bold">${blue.player}</td>
                     <td><span class="badge bg-secondary">${blue.mastery}</span></td>
-                    <td><small>${blue.form}</small></td>
+                    <td>${getStreakHtml(blue.streak)}</td>
                     <td class="text-muted">vs</td>
                     <td class="text-danger fw-bold">${red.player}</td>
                     <td><span class="badge bg-secondary">${red.mastery}</span></td>
-                    <td><small>${red.form}</small></td>
+                    <td>${getStreakHtml(red.streak)}</td>
                 </tr>
             `;
             tbody.innerHTML += row;
         }
 
-        // scroll to ressult
+        // fill comparison table
+        const comparisonBody = document.getElementById('comparison-table-body');
+        comparisonBody.innerHTML = '';
+
+        result.comparison.forEach(row => {
+            // determine colors based on edge
+            const mColor = row.mastery_edge === 'Blue' ? 'text-info' : 'text-danger';
+            const fColor = row.form_edge === 'Blue' ? 'text-info' : 'text-danger';
+            
+            // translate
+            const mEdgeText = row.mastery_edge === 'Blue' ? 'Azul' : 'Vermelho';
+            const fEdgeText = row.form_edge === 'Blue' ? 'Azul' : 'Vermelho';
+
+            const tr = `
+                <tr>
+                    <td class="fw-bold text-white">${row.role}</td>
+                    <td class="${mColor} fw-bold">+${row.mastery_val}% ${mEdgeText}</td>
+                    <td class="${fColor} fw-bold">+${row.form_val}% ${fEdgeText}</td>
+                </tr>
+            `;
+            comparisonBody.innerHTML += tr;
+        });
+
         document.getElementById('analysis-section').scrollIntoView({ behavior: 'smooth' });
 
     } catch (error) {
@@ -163,6 +190,5 @@ document.getElementById('predict-btn').addEventListener('click', async () => {
     }
 });
 
-// srtart
-loadChampions(); 
+loadChampions();
 populateTeamSelects();

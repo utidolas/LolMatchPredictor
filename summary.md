@@ -53,18 +53,12 @@
 
 # TO DO
 ## website
+- adjust "entenda os dados" tab, the data is from 2 years, not the entire career
 - blue/red on the east west side
-- blue/red team name display above draft
-- interactive carousel
-- carousel scroll
-- api to get lol data for website
-- dont let repeat champions on draft
-- api to call our model
-- bootstrap
-- search bar carousel
+- blue/red team ICON display above draft
+- dont let repeat champions/team on draft
 - players name
 - adjust to new split (whether a new team or player is inserted)
-- champ icons in carousel
 
 ## AI/ML model
 - more metrics ?
