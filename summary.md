@@ -59,9 +59,13 @@
 - dont let repeat champions/team on draft
 - players name
 - adjust to new split (whether a new team or player is inserted)
+- player mastery and streak are random, FIX THIS
+- lack of data
+- team strength is hardcoded
 
 ## AI/ML model
 - more metrics ?
+  - game duration
 - optimize Meta metrics
 - otimize training model 
 - adjust to new split/teams/players

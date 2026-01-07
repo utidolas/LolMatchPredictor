@@ -158,3 +158,24 @@ body {
 .slot * {
     pointer-events: none;
 }
+
+/* Narrator Animation */
+#narrator-list li {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeInUp 0.5s forwards;
+}
+
+#narrator-list li:nth-child(1) { animation-delay: 0.1s; }
+#narrator-list li:nth-child(2) { animation-delay: 0.3s; }
+#narrator-list li:nth-child(3) { animation-delay: 0.5s; }
+#narrator-list li:nth-child(4) { animation-delay: 0.7s; }
+#narrator-list li:nth-child(5) { animation-delay: 0.9s; }
+#narrator-list li:nth-child(n+6) { animation-delay: 1.1s; } /* Catch-all for extra lines */
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

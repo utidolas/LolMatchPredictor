@@ -63,7 +63,7 @@ model = XGBClassifier(
     n_jobs=-1
 )
 
-print("🧠 Training model...")
+print("Training model...")
 model.fit(X_train, y_train)
 
 # evaluation

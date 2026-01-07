@@ -7,6 +7,8 @@ from pydantic import BaseModel
 from xgboost import XGBClassifier
 from fastapi.middleware.cors import CORSMiddleware
 
+
+# start server app and allow to talk to python script
 app = FastAPI()
 
 app.add_middleware(
@@ -27,6 +29,13 @@ try:
     df_history = pd.read_csv("cblol_training_dataV2.csv")
     print("System Ready.")
 except Exception as e:
+    print(f"error loading assets: {e}")
+    df_history = pd.DataFrame() 
+    FEATURE_COLUMNS = []
+    
+
+# check for errors
+except Exception as e:
     print(f"Error loading assets: {e}")
     df_history = pd.DataFrame() 
     FEATURE_COLUMNS = []
@@ -43,7 +52,7 @@ ROSTERS = {
     "Isurus": {"top": "Pan", "jng": "Kaze", "mid": "Seiya", "bot": "Gavotto", "sup": "Jelly"}
 }
 
-# --- helper functions ---
+# --- get average stats ---
 def get_avg_stats(role_prefix, champion, player_name):
     col_meta = f"{role_prefix}_champ_meta_wr"
     mastery = 0.5
@@ -61,23 +70,66 @@ def get_avg_stats(role_prefix, champion, player_name):
         mastery = float(meta + np.random.uniform(-0.05, 0.05))
         form = float(0.5 + np.random.uniform(-0.15, 0.15))
 
-    # generate a streak based on form (Simulated for Demo)
-    # if form is high, positive streak. If low, negative.
     if form > 0.55:
-        streak = int(np.random.randint(2, 6)) # Win streak 2 to 5
+        streak = int(np.random.randint(2, 6)) 
     elif form < 0.45:
-        streak = int(np.random.randint(-5, -1)) # Loss streak -2 to -5
+        streak = int(np.random.randint(-5, -1)) 
     else:
-        streak = int(np.random.choice([-1, 1])) # 1W or 1L
+        streak = int(np.random.choice([-1, 1]))
 
     return mastery, form, meta, streak
 
+# --- AI narrator --- 
+def generate_narrative(blue_stats, red_stats, blue_win_prob):
+    narrative = []
+    
+    # Map technical roles to natural Portuguese
+    role_map = {
+        "TOP": "no Topo", 
+        "JNG": "na Selva", 
+        "MID": "no Meio", 
+        "BOT": "como Atirador", 
+        "SUP": "como Suporte"
+    }
+
+    # 1. Overall Prediction
+    if blue_win_prob > 0.65:
+        narrative.append(f"O Lado Azul entra como favorito absoluto com {blue_win_prob:.0%} de chance de vitória.")
+    elif blue_win_prob < 0.35:
+        narrative.append(f"O Lado Vermelho tem uma composição estatisticamente superior ({1-blue_win_prob:.0%} de chance).")
+    else:
+        narrative.append("Este confronto está extremamente equilibrado. Pequenos erros definirão o resultado.")
+
+    # 2. Key Matchups
+    for i in range(5):
+        blue_p = blue_stats[i]
+        red_p = red_stats[i]
+        
+        b_mast = float(blue_p['mastery'].strip('%')) / 100
+        r_mast = float(red_p['mastery'].strip('%')) / 100
+        
+        role_pt = role_map.get(blue_p['role'], blue_p['role'])
+
+        if b_mast > 0.60 and (b_mast - r_mast) > 0.10:
+            narrative.append(f"🔥 {blue_p['player']} é letal {role_pt}! Com {b_mast:.0%} de maestria, ele tem grande vantagem sobre {red_p['player']}.")
+        elif r_mast > 0.60 and (r_mast - b_mast) > 0.10:
+            narrative.append(f"🔥 Cuidado com o {red_p['role']} do {red_p['player']} ({r_mast:.0%} de WR), que supera a experiência do {blue_p['player']} nesta match-up.")
+
+        if blue_p['streak'] >= 3:
+            narrative.append(f"📈 {blue_p['player']} vem pegando fogo com uma sequência de {blue_p['streak']} vitórias!")
+        if red_p['streak'] <= -3:
+            narrative.append(f"📉 {red_p['player']} precisa se recuperar, vindo de {abs(red_p['streak'])} derrotas seguidas.")
+
+    return narrative
+
+# what website will send
 class DraftRequest(BaseModel):
     blue_team: str
     red_team: str
     blue_champs: list[str]
     red_champs: list[str]
 
+# prediction endpoint (when website send data to /predict, it runs this)
 @app.post("/predict")
 def predict_match(data: DraftRequest):
     if len(data.blue_champs) != 5 or len(data.red_champs) != 5:
@@ -104,7 +156,7 @@ def predict_match(data: DraftRequest):
             "role": role.upper(),
             "player": player,
             "mastery": f"{m:.0%}",
-            "streak": streak # sent to frontedn
+            "streak": streak
         })
 
     # process red side
@@ -141,7 +193,6 @@ def predict_match(data: DraftRequest):
         input_row[f"{role}_mastery_gap"] = m_gap
         input_row[f"{role}_form_gap"] = f_gap
         
-        # set up comparison data
         gap_data.append({
             "role": role.upper(),
             "mastery_edge": "Blue" if m_gap > 0 else "Red",
@@ -156,19 +207,22 @@ def predict_match(data: DraftRequest):
         if col not in df_input.columns:
             df_input[col] = 0.0
     df_input = df_input[FEATURE_COLUMNS]
+
     raw_prob = model.predict_proba(df_input)[0][1]
-    blue_win_prob = float(raw_prob) 
+    blue_win_prob = float(raw_prob)
     red_win_prob = 1.0 - blue_win_prob
 
+    # narrator
+    narrator_lines = generate_narrative(blue_stats_display, red_stats_display, blue_win_prob)
     
     return {
         "blue_win_percent": round(blue_win_prob * 100, 1),
-        "red_win_percent": round(red_win_prob * 100, 1), 
+        "red_win_percent": round(red_win_prob * 100, 1),
         "blue_stats": blue_stats_display,
         "red_stats": red_stats_display,
-        "comparison": gap_data
+        "comparison": gap_data,
+        "narrator": narrator_lines
     }
-
 
 if __name__ == "__main__":
     import uvicorn

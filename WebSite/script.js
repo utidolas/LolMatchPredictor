@@ -132,11 +132,31 @@ document.getElementById('predict-btn').addEventListener('click', async () => {
         
         document.getElementById('analysis-section').style.display = 'block';
         
-        // fill blue/red win percentages
+        // 1. Update Dual Percentages
         document.getElementById('blue-win-percent').innerText = `${result.blue_win_percent}%`;
         document.getElementById('red-win-percent').innerText = `${result.red_win_percent}%`;
         
-        // fillm ain status table
+        // 2. Populate Narrator
+        const narratorList = document.getElementById('narrator-list');
+        narratorList.innerHTML = '';
+        
+        if (result.narrator && result.narrator.length > 0) {
+            result.narrator.forEach(line => {
+                const li = document.createElement('li');
+                li.className = "mb-3 fs-5 border-bottom border-secondary pb-2";
+                
+                let icon = '<i class="fa-solid fa-comment-dots text-gold me-2"></i>';
+                // Only hide default icon if the line already starts with an emoji
+                if(line.includes("🔥") || line.includes("📈") || line.includes("📉")) icon = "";
+                
+                li.innerHTML = `${icon}${line}`;
+                narratorList.appendChild(li);
+            });
+        } else {
+            narratorList.innerHTML = '<li class="text-muted">Nenhum destaque estatístico relevante para este confronto.</li>';
+        }
+
+        // 3. Fill Main Stats Table
         const tbody = document.getElementById('stats-table-body');
         tbody.innerHTML = '';
 
@@ -159,16 +179,14 @@ document.getElementById('predict-btn').addEventListener('click', async () => {
             tbody.innerHTML += row;
         }
 
-        // fill comparison table
+        // 4. Fill Comparison Table
         const comparisonBody = document.getElementById('comparison-table-body');
         comparisonBody.innerHTML = '';
 
         result.comparison.forEach(row => {
-            // determine colors based on edge
             const mColor = row.mastery_edge === 'Blue' ? 'text-info' : 'text-danger';
             const fColor = row.form_edge === 'Blue' ? 'text-info' : 'text-danger';
             
-            // translate
             const mEdgeText = row.mastery_edge === 'Blue' ? 'Azul' : 'Vermelho';
             const fEdgeText = row.form_edge === 'Blue' ? 'Azul' : 'Vermelho';
 
